@@ -18,7 +18,7 @@ python follow_users_from_file.py -u raulcampossbd82 -p lamadrederu23 "$(realpath
 
 echo -e " Following HASTAGS \n"
 ## Follow users by hashtag
-python follow_users_by_hashtag.py -u raulcamposbd82 -p lamadrederu23 hashtags follow4follow like4like instafollow followme followforfollow followback
+python follow_users_by_hashtag.py -u raulcampossbd82 -p lamadrederu23 hashtags follow4follow like4like instafollow followme followforfollow followback
 
 echo -e " Following FOLLOWERS \n"
 ## Follow followers
