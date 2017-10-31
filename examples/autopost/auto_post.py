@@ -1,55 +1,41 @@
-import time
-import sys
-import os
-import yaml
-import glob
+import time, sys, os, yaml, glob, argparse, sys, random, requests, shutil
 from instabot import Bot
-import argparse
-import sys
+from bs4 import BeautifulSoup
+
 
 sys.path.append(os.path.join(sys.path[0], '../../'))
 
-from instabot import Bot
+headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
+r=requests.get('https://top-hashtags.com/instagram/', headers=headers)
+soup = BeautifulSoup(r.content, 'html.parser')
+
+thetags = []
+
+for tag in soup.find_all("div", {'class': 'tht-tag'}, 'a'):
+    thetags.append(tag.string.encode('ascii','ignore'))
+
+cut = random.sample(thetags, 24)
+same = ['#follow4follow', '#f4f', '#TagsForLikes', '#like4like', '#instafollow', '#followme']
+test = cut.extend(same)
+caption = " ".join(str(x) for x in cut)
 
 parser = argparse.ArgumentParser(add_help=True)
 parser.add_argument('-u', type=str, help="username")
 parser.add_argument('-p', type=str, help="password")
 args = parser.parse_args()
 
-posted_pic_list = []
-try:
-    with open('pics.txt', 'r') as f:
-        posted_pic_list = f.read().splitlines()
-except:
-    posted_pic_list = []
+random_filename = random.choice([
+    x for x in os.listdir('pics')
+])
+
+photo_path = 'pics/' + random_filename
 
 bot = Bot()
-bot.login(username=args.u, password=args.p,
-          proxy=args.proxy)
+bot.login(username=args.u, password=args.p)
 
+print("upload: " + caption)
+bot.uploadPhoto(photo_path, caption=caption)
+if bot.LastResponse.status_code != 200:
+    print(bot.LastResponse)
 
-pics = glob.glob("./pics/*.jpg")
-pics = sorted(pics)
-
-try:
-    for pic in pics:
-        if pic in posted_pic_list:
-            continue
-
-            caption = pic[:-4].split(" ")
-            caption = " ".join(caption[1:])
-
-            print("upload: " + caption)
-            bot.uploadPhoto(pic, caption=caption)
-            if bot.LastResponse.status_code != 200:
-                print(bot.LastResponse)
-                # snd msg
-                break
-
-            if not pic in posted_pic_list:
-                posted_pic_list.append(pic)
-                with open('pics.txt', 'a') as f:
-                    f.write(pic + "\n")
-
-except Exception as e:
-    print(str(e))
+shutil.rmtree('pics')
