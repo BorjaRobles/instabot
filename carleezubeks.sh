@@ -12,11 +12,11 @@ python follow_users_from_file.py -u carleezubeks -p insta@123 "$(realpath client
 
 echo -e " Following HASTAGS \n"
 ## Follow users by hashtag
-python follow_users_by_hashtag.py -u insta@123 -p lamadrederu23 hashtags follow4follow like4like instafollow followme followforfollow followback
+python follow_users_by_hashtag.py -u carleezubeks -p insta@123 hashtags follow4follow like4like instafollow followme followforfollow followback
 
 echo -e " Following FOLLOWERS \n"
 ## Follow followers
-python follow_user_following.py -u insta@123 -p lamadrederu23
+python follow_user_following.py -u carleezubeks -p insta@123
 
 
 echo -e " *************************************   "
@@ -27,8 +27,6 @@ echo -e " ************************************* \n"
 echo -e " Like clients lasts media \n"
 ##Like clients lasts media
 python like_users.py -u carleezubeks -p insta@123
-
-
 
 echo -e " Like HASTAGS \n"
 ## Like hastags
