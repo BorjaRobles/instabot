@@ -17,11 +17,10 @@ parser = argparse.ArgumentParser(add_help=True)
 parser.add_argument('-u', type=str, help="username")
 parser.add_argument('-p', type=str, help="password")
 parser.add_argument('-proxy', type=str, help="proxy")
-parser.add_argument('filepath', type=str, help='filepath')
 args = parser.parse_args()
 
 bot = Bot(filter_users=False)
-users_to_follow = bot.read_list_from_file(args.filepath)
+users_to_follow = bot.read_list_from_file("clients.txt")
 if not users_to_follow:
     exit()
 else:
