@@ -3,9 +3,18 @@ import sys
 import os
 import yaml
 import glob
+from instabot import Bot
+import argparse
+import sys
 
 sys.path.append(os.path.join(sys.path[0], '../../'))
+
 from instabot import Bot
+
+parser = argparse.ArgumentParser(add_help=True)
+parser.add_argument('-u', type=str, help="username")
+parser.add_argument('-p', type=str, help="password")
+args = parser.parse_args()
 
 posted_pic_list = []
 try:
@@ -14,18 +23,18 @@ try:
 except:
     posted_pic_list = []
 
-timeout = 24 * 60 * 60  # pics will be posted every 24 hours
-
 bot = Bot()
-bot.login()
+bot.login(username=args.u, password=args.p,
+          proxy=args.proxy)
 
-while True:
-    pics = glob.glob("./pics/*.jpg")
-    pics = sorted(pics)
-    try:
-        for pic in pics:
-            if pic in posted_pic_list:
-                continue
+
+pics = glob.glob("./pics/*.jpg")
+pics = sorted(pics)
+
+try:
+    for pic in pics:
+        if pic in posted_pic_list:
+            continue
 
             caption = pic[:-4].split(" ")
             caption = " ".join(caption[1:])
@@ -42,8 +51,5 @@ while True:
                 with open('pics.txt', 'a') as f:
                     f.write(pic + "\n")
 
-            time.sleep(timeout)
-
-    except Exception as e:
-        print(str(e))
-    time.sleep(60)
+except Exception as e:
+    print(str(e))

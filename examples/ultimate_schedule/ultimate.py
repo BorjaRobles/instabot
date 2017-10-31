@@ -28,7 +28,7 @@ try:
 except:
     posted_pic_list = []
 #!!-> to work this feature properly write full/absolute path to .jgp files as follows ->v
-pics = glob.glob("/home/user/instagram/instabot/examples/ultimate_schedule/pics/*.jpg")  #!!change this
+pics = glob.glob("/Users/brobles/dev/instabot/examples/ultimate_schedule/pictures/*.jpg")  #!!change this
 pics = sorted(pics)
 #end of pics processing
 
@@ -73,7 +73,6 @@ def job8(): #-->fn to upload photos /auto_uploader
         print(str(e))
 # end of job8
 
-
 def job9():  # put non followers on blacklist
     try:
         print("Creating Non Followers List")
@@ -94,6 +93,12 @@ def job9():  # put non followers on blacklist
     except Exception as e:
         print(str(e))
 
+def job10():
+    try:
+    except Exception as e:
+    print(str(e))
+
+
 
 # function to make threads -> details here http://bit.ly/faq_schedule
 def run_threaded(job_fn):
@@ -101,15 +106,15 @@ def run_threaded(job_fn):
     job_thread.start()
 
 schedule.every(1).hour.do(run_threaded, stats)              #get stats
-schedule.every(8).hours.do(run_threaded, job1)              #like hashtag
-schedule.every(2).hours.do(run_threaded, job2)              #like timeline
-schedule.every(1).days.at("16:00").do(run_threaded, job3)   #like followers of users from file
-schedule.every(2).days.at("11:00").do(run_threaded, job4)   #follow followers
-schedule.every(16).hours.do(run_threaded, job5)             #comment medias
-schedule.every(1).days.at("08:00").do(run_threaded, job6)   #unfollow non-followers
-schedule.every(12).hours.do(run_threaded, job7)             #follow users from hashtag from file
-schedule.every(1).days.at("21:28").do(run_threaded, job8)   #upload pics
-schedule.every(4).days.at("07:50").do(run_threaded, job9)   #non-followers blacklist
+schedule.every(1).hours.do(run_threaded, job1)              #like hashtag
+schedule.every(1).hours.do(run_threaded, job2)              #like timeline
+schedule.every(1).hours.do(run_threaded, job3)   #like followers of users from file
+schedule.every(1).hours.do(run_threaded, job4)   #follow followers
+schedule.every(1).hours.do(run_threaded, job5)             #comment medias
+schedule.every(1).hours.do(run_threaded, job6)   #unfollow non-followers
+schedule.every(1).hours.do(run_threaded, job7)             #follow users from hashtag from file
+schedule.every(1).hours.do(run_threaded, job8)   #upload pics
+schedule.every(1).hours.do(run_threaded, job9)   #non-followers blacklist
 
 while True:
     schedule.run_pending()
