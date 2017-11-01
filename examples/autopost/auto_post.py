@@ -2,7 +2,6 @@ import time, sys, os, yaml, glob, argparse, sys, random, requests, shutil
 from instabot import Bot
 from bs4 import BeautifulSoup
 
-
 sys.path.append(os.path.join(sys.path[0], '../../'))
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
@@ -14,7 +13,7 @@ thetags = []
 for tag in soup.find_all("div", {'class': 'tht-tag'}, 'a'):
     thetags.append(tag.string.encode('ascii','ignore'))
 
-cut = random.sample(thetags, 24)
+cut = random.sample(thetags, 20)
 same = ['#follow4follow', '#f4f', '#TagsForLikes', '#like4like', '#instafollow', '#followme']
 test = cut.extend(same)
 caption = " ".join(str(x) for x in cut)
