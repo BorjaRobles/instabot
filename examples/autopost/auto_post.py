@@ -37,4 +37,4 @@ bot.uploadPhoto(photo_path, caption=caption)
 if bot.LastResponse.status_code != 200:
     print(bot.LastResponse)
 
-shutil.rmtree('pics')
+#shutil.rmtree('pics')

@@ -8,7 +8,7 @@ echo -e " ************************************* \n"
 
 echo -e " Following clients \n"
 ## Follow clients
-python follow_users_from_file.py -u carleezubeks -p insta@123 "$(realpath clients.txt)"
+python follow_users_from_file.py -u carleezubeks -p insta@123
 
 echo -e " Following HASTAGS \n"
 ## Follow users by hashtag
