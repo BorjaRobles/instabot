@@ -230,19 +230,19 @@ class Bot(API):
     def get_popular_medias(self):
         return get_popular_medias(self)
 
-    def get_user_medias(self, user_id, filtration=True, is_comment=False):
+    def get_user_medias(self, user_id, filtration=False, is_comment=False):
         return get_user_medias(self, user_id, filtration, is_comment)
 
     def get_total_user_medias(self, user_id):
         return get_total_user_medias(self, user_id)
 
-    def get_hashtag_medias(self, hashtag, filtration=True):
+    def get_hashtag_medias(self, hashtag, filtration=False):
         return get_hashtag_medias(self, hashtag, filtration)
 
     def get_total_hashtag_medias(self, hashtag, amount=100, filtration=False):
         return get_total_hashtag_medias(self, hashtag, amount, filtration)
 
-    def get_geotag_medias(self, geotag, filtration=True):
+    def get_geotag_medias(self, geotag, filtration=False):
         return get_geotag_medias(self, geotag, filtration)
 
     def get_locations_from_coordinates(self, latitude, longitude):
@@ -310,7 +310,7 @@ class Bot(API):
     def like_timeline(self, amount=None):
         return like_timeline(self, amount)
 
-    def like_user(self, user_id, amount=None, filtration=True):
+    def like_user(self, user_id, amount=None, filtration=False):
         return like_user(self, user_id, amount, filtration)
 
     def like_hashtag(self, hashtag, amount=None):
@@ -319,7 +319,7 @@ class Bot(API):
     def like_geotag(self, geotag, amount=None):
         return like_geotag(self, geotag, amount)
 
-    def like_users(self, user_ids, nlikes=None, filtration=True):
+    def like_users(self, user_ids, nlikes=None, filtration=False):
         return like_users(self, user_ids, nlikes, filtration)
 
     def like_followers(self, user_id, nlikes=None):
@@ -476,7 +476,7 @@ class Bot(API):
 
     # filter
 
-    def filter_medias(self, media_items, filtration=True, quiet=False, is_comment=False):
+    def filter_medias(self, media_items, filtration=False, quiet=False, is_comment=False):
         return filter_medias(self, media_items, filtration, quiet, is_comment)
 
     def check_media(self, media):

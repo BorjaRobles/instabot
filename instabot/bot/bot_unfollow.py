@@ -5,40 +5,47 @@ from . import delay
 
 
 def unfollow(self, user_id):
-    user_id = self.convert_to_user_id(user_id)
-    user_info = self.get_user_info(user_id)
-    print('\n===> Going to UN-Follow user_id: %s , user_name: %s' %
-          (user_id, user_info["username"]))
-    if self.check_user(user_id, unfollowing=True):
-        return True  # whitelisted user
-    if limits.check_if_bot_can_unfollow(self):
-        delay.unfollow_delay(self)
-        if super(self.__class__, self).unfollow(user_id):
-            print('\033[93m===> UN-FOLLOWED , user_id: %s , user_name: %s \033[0m\n' %
-                  (user_id, user_info["username"]))
-            self.total_unfollowed += 1
+    try:
+        user_id = self.convert_to_user_id(user_id)
+        user_info = self.get_user_info(user_id)
+        print('\n===> Going to UN-Follow user_id: %s , user_name: %s' %
+              (user_id, user_info["username"]))
+        if self.check_user(user_id, unfollowing=True):
+            return True  # whitelisted user
+        if limits.check_if_bot_can_unfollow(self):
+            delay.unfollow_delay(self)
+            if super(self.__class__, self).unfollow(user_id):
+                print('\033[93m===> UN-FOLLOWED , user_id: %s , user_name: %s \033[0m\n' %
+                      (user_id, user_info["username"]))
+                self.total_unfollowed += 1
             return True
-    else:
-        self.logger.info("Out of unfollows for today.")
-    return False
+        else:
+            self.logger.info("Out of unfollows for today.")
+            return False
+    except ValueError:
+        return False
 
 
 def unfollow_users(self, user_ids):
     broken_items = []
-    self.logger.info("Going to unfollow %d users." % len(user_ids))
-    user_ids = set(map(str, user_ids))
-    filtered_user_ids = list(set(user_ids) - set(self.whitelist))
-    if len(filtered_user_ids) != len(user_ids):
-        self.logger.info(
-            "After filtration by whitelist %d users left." % len(filtered_user_ids))
-    for user_id in tqdm(filtered_user_ids, desc='Processed users'):
-        if not self.unfollow(user_id):
-            delay.error_delay(self)
-            broken_items = filtered_user_ids[filtered_user_ids.index(user_id):]
-            break
-    self.logger.info("DONE: Total unfollowed %d users. " %
+
+    try:
+        self.logger.info("Going to unfollow %d users." % len(user_ids))
+        user_ids = set(map(str, user_ids))
+        filtered_user_ids = list(set(user_ids) - set(self.whitelist))
+        if len(filtered_user_ids) != len(user_ids):
+            self.logger.info(
+                "After filtration by whitelist %d users left." % len(filtered_user_ids))
+        for user_id in tqdm(filtered_user_ids, desc='Processed users'):
+            if not self.unfollow(user_id):
+                delay.error_delay(self)
+                broken_items = filtered_user_ids[filtered_user_ids.index(user_id):]
+                break
+        self.logger.info("DONE: Total unfollowed %d users. " %
                      self.total_unfollowed)
-    return broken_items
+        return broken_items
+    except ValueError:
+        return broken_items
 
 
 def unfollow_non_followers(self, n_to_unfollows=None):

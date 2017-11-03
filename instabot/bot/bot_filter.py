@@ -23,7 +23,7 @@ def skippedlist_adder(self, user_id):
 # filtering medias
 
 
-def filter_medias(self, media_items, filtration=True, quiet=False, is_comment=False):
+def filter_medias(self, media_items, filtration=False, quiet=False, is_comment=False):
     if filtration:
         if not quiet:
             self.logger.info("Received %d medias." % len(media_items))
@@ -148,18 +148,6 @@ def check_user(self, user_id, filter_closed_acc=False, unfollowing=False):
             # Log to Console
             print('\n info : \033[91m is PRIVATE , !!! \033[0m')
             return False
-    if "is_business" in user_info:
-        if user_info["is_business"]:
-            # Log to Console
-            print('\n info : \033[91m is BUSINESS , Skipping \033[0m')
-            skippedlist_adder(self, user_id)  # Add user_id to skipped.txt
-            return False
-    if "is_verified" in user_info:
-        if user_info["is_verified"]:
-            # Log to Console
-            print('\n info : \033[91m is VERIFIED , Skipping \033[0m')
-            skippedlist_adder(self, user_id)  # Add user_id to skipped.txt
-            return False
     if "follower_count" in user_info and "following_count" in user_info:
         if user_info["follower_count"] < self.min_followers_to_follow:
             # Log to Console
@@ -186,13 +174,6 @@ def check_user(self, user_id, filter_closed_acc=False, unfollowing=False):
             skippedlist_adder(self, user_id)  # Add user_id to skipped.txt
             return False
         try:
-            if user_info["follower_count"] / user_info["following_count"] \
-                    > self.max_followers_to_following_ratio:
-                # Log to Console
-                print(
-                    '\n\033[91m ["follower_count"] / ["following_count"] > self.max_followers_to_following_ratio , Skipping \033[0m')
-                skippedlist_adder(self, user_id)  # Add user_id to skipped.txt
-                return False
             if user_info["following_count"] / user_info["follower_count"] \
                     > self.max_following_to_followers_ratio:
                 # Log to Console

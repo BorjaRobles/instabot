@@ -459,7 +459,7 @@ def menu_comment():
             for user_id in users:
                 bot.comment_medias(
                     bot.get_user_medias(
-                        user_id, filtration=True))
+                        user_id, filtration=False))
 
         elif ans == "4":
             bot.comment_medias(bot.get_timeline_medias())

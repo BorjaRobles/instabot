@@ -18,7 +18,7 @@ parser.add_argument('-p', type=str, help="password")
 parser.add_argument('-proxy', type=str, help="proxy")
 args = parser.parse_args()
 
-bot = Bot()
+bot = Bot(filter_users=False)
 bot.login(username=args.u, password=args.p,
           proxy=args.proxy)
 
@@ -27,4 +27,4 @@ print("Going to like users:", like_users_list)
 
 
 for item in like_users_list:
-    bot.like_user, {'user_id': item, 'amount': None}
+    bot.like_user, {'user_id': item, 'amount': 10000}

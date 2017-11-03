@@ -36,14 +36,14 @@ def get_archived_medias(self, as_dict=False):
     return self.filter_medias(self.LastJson["items"], False)
 
 
-def get_timeline_medias(self, filtration=True):
+def get_timeline_medias(self, filtration=False):
     if not self.getTimelineFeed():
         self.logger.warning("Error while getting timeline feed.")
         return []
     return self.filter_medias(self.LastJson["items"], filtration)
 
 
-def get_user_medias(self, user_id, filtration=True, is_comment=False):
+def get_user_medias(self, user_id, filtration=False, is_comment=False):
     user_id = self.convert_to_user_id(user_id)
     self.getUserFeed(user_id)
     if self.LastJson["status"] == 'fail':
@@ -74,7 +74,7 @@ def get_user_likers(self, user_id, media_count=10):
     return list(your_likers)
 
 
-def get_hashtag_medias(self, hashtag, filtration=True):
+def get_hashtag_medias(self, hashtag, filtration=False):
     if not self.getHashtagFeed(hashtag):
         self.logger.warning("Error while getting hashtag feed.")
         return []
@@ -87,7 +87,7 @@ def get_total_hashtag_medias(self, hashtag, amount=100, filtration=False):
     return self.filter_medias(medias, filtration=filtration)
 
 
-def get_geotag_medias(self, geotag, filtration=True):
+def get_geotag_medias(self, geotag, filtration=False):
     # TODO: returns list of medias from geotag
     pass
 
