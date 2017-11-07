@@ -42,11 +42,6 @@ same = ['#follow4follow', '#f4f', '#TagsForLikes', '#like4like', '#instafollow',
 test = cut.extend(same)
 caption = " ".join(str(x) for x in cut)
 
-
-
-
-
-
 parser = argparse.ArgumentParser(add_help=True)
 parser.add_argument('-u', type=str, help="username")
 parser.add_argument('-p', type=str, help="password")
@@ -159,7 +154,7 @@ schedule.every(8).hours.do(run_threaded, job3)              #comment timeline me
 schedule.every(1).days.at("16:00").do(run_threaded, job4)   #Like users medias
 schedule.every(6).hours.do(run_threaded, job5)              #Going to follow followers
 schedule.every(6).hours.do(run_threaded, job6)              #Follow users
-schedule.every(1).days.at("13:28").do(run_threaded, job7)   #Upload pic
+schedule.every(4).hours.do(run_threaded, job7)   #Upload pic
 schedule.every(1).days.at("10:00").do(run_threaded, job8)   #Unfollow non followers
 
 
