@@ -122,6 +122,7 @@ def job6():
 
 
 def job7():
+    print("Uploading a new photo")
     try:
         random_filename = random.choice([
             x for x in os.listdir('pics')
@@ -138,6 +139,7 @@ def job7():
 
 
 def job8():
+    print("Unfollowing non followers")
     try:
         bot.unfollow_non_followers()
     except Exception as e:
@@ -146,6 +148,7 @@ def job8():
 
 
 def job9():
+    print("Updating pics")
     try:
         shutil.rmtree('pics')
         os.system("download.py")
