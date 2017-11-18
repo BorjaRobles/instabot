@@ -200,27 +200,27 @@ def job8():
 # end of job8
 
 
-def job9():
-    try:
-        shutil.rmtree('pics')
-        os.system("download.py")
-    except Exception as e:
-        print(str(e))
-
-
 """
     Workflow:
         Download media photos with hashtag.
 """
 def download_medias():
     try:
-        print '--------------------------------'
-        print 'Trying to download medias by tag'
-        print '--------------------------------'
+        bot.logger.info('--------------------------------')
+        bot.logger.info('Trying to download medias by tag')
+        bot.logger.info('--------------------------------')
+
         shutil.rmtree('photos')
-        for hashtag in ['portraitpage', 'top_portrait', 'infinite_faces', 'sexywoman']:
+        for hashtag in ['portraitpage', 'top_portrait','infinite_faces',
+                        'sexywoman', 'boudoirphotography',
+                        'fashionphotography', 'boudoir']:
             medias = bot.get_hashtag_medias(hashtag)
-            bot.download_photos(medias)
+            try:
+                bot.logger.info(" --- Downloading medias --- ")
+                bot.download_photos(medias)
+            except:
+                bot.logger.error(" --> Something gone wrg :( <-- ")
+                pass
     except Exception as e:
         print 'Whoops something gone wrg ....'
         print(str(e))
