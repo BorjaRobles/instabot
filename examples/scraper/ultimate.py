@@ -179,7 +179,7 @@ def job6():
 def job7():
     try:
         random_filename = random.choice([
-            x for x in os.listdir('pics')
+            x for x in os.listdir('photos')
         ])
 
         photo_path = 'photos/' + random_filename
@@ -236,7 +236,7 @@ schedule.every(1).hour.do(run_threaded, stats)              # get stats
 schedule.every(6).hours.do(run_threaded, job1)              # like hashtag
 schedule.every(2).hours.do(run_threaded, job2)              # like timeline
 schedule.every(8).hours.do(run_threaded, job3)              # comment timeline medias
-schedule.every(1).days.at("16:00").do(run_threaded, job4)   # Like users medias
+schedule.every(3).hours.do(run_threaded, job4)              # Like users medias
 schedule.every(6).hours.do(run_threaded, job5)              # Going to follow followers
 schedule.every(6).hours.do(run_threaded, job6)              # Follow users
 schedule.every(4).hours.do(run_threaded, job7)              # Upload pic
