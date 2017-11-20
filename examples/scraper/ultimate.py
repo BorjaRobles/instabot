@@ -239,9 +239,9 @@ schedule.every(8).hours.do(run_threaded, job3)              # comment timeline m
 schedule.every(3).hours.do(run_threaded, job4)              # Like users medias
 schedule.every(6).hours.do(run_threaded, job5)              # Going to follow followers
 schedule.every(6).hours.do(run_threaded, job6)              # Follow users
-schedule.every(4).hours.do(run_threaded, job7)              # Upload pic
-schedule.every(1).days.at("10:00").do(run_threaded, job8)   # Unfollow non followers
-schedule.every(5).days.do(run_threaded, download_medias)    # Renew images
+schedule.every(3).days.do(run_threaded, job7)               # Upload pic
+schedule.every(1).days.do(run_threaded, job8)               # Unfollow non followers
+schedule.every(10).days.do(run_threaded, download_medias)   # Renew images
 
 while True:
     schedule.run_pending()
