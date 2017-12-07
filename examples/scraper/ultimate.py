@@ -28,20 +28,6 @@ def get_random(from_list):
     return _random
 
 
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
-r=requests.get('https://top-hashtags.com/instagram/', headers=headers)
-soup = BeautifulSoup(r.content, 'html.parser')
-
-thetags = []
-
-for tag in soup.find_all("div", {'class': 'tht-tag'}, 'a'):
-    thetags.append(tag.string.encode('ascii','ignore'))
-
-cut = random.sample(thetags, 20)
-same = ['#follow4follow', '#f4f', '#TagsForLikes', '#like4like', '#instafollow', '#followme']
-test = cut.extend(same)
-caption = " ".join(str(x) for x in cut)
-
 parser = argparse.ArgumentParser(add_help=True)
 parser.add_argument('-u', type=str, help="username")
 parser.add_argument('-p', type=str, help="password")
@@ -114,6 +100,22 @@ bot.logger.info("ULTIMATE SCRAPING PHOTOS BOT FOR PHOTOGRAPHER")
 comments_file_name = "comments.txt"
 
 
+def generate_tags():
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
+    r = requests.get('https://top-hashtags.com/instagram/', headers=headers)
+    soup = BeautifulSoup(r.content, 'html.parser')
+
+    thetags = []
+
+    for tag in soup.find_all("div", {'class': 'tht-tag'}, 'a'):
+        thetags.append(tag.string.encode('ascii','ignore'))
+
+    cut = random.sample(thetags, 20)
+    same = ['#follow4follow', '#f4f', '#TagsForLikes', '#like4like', '#instafollow', '#followme']
+    cut.extend(same)
+    return " ".join(str(x) for x in cut)
+
+
 def stats(): bot.save_user_stats(bot.user_id)
 
 
@@ -177,19 +179,43 @@ def job6():
 
 
 def job7():
-    try:
-        random_filename = random.choice([
-            x for x in os.listdir('photos')
-        ])
+    if not os.listdir('photos'):
+        try:
+            bot.logger.info('--------------------------------')
+            bot.logger.info('Trying to download medias by tag')
+            bot.logger.info('--------------------------------')
 
-        photo_path = 'photos/' + random_filename
+            shutil.rmtree('photos')
+            for hashtag in ['portraitpage', 'top_portrait','infinite_faces',
+                            'sexywoman', 'boudoirphotography',
+                            'fashionphotography', 'boudoir']:
+                medias = bot.get_hashtag_medias(hashtag)
+                try:
+                    bot.logger.info(" --- Downloading medias --- ")
+                    bot.download_photos(medias)
+                except:
+                    bot.logger.error(" --> Something gone wrg :( <-- ")
+                    pass
+        except Exception as e:
+            print 'Whoops something gone wrg ....'
+            print(str(e))
+    else:
+        try:
+            random_filename = random.choice([
+                x for x in os.listdir('photos')
+            ])
 
-        print("upload: " + caption)
-        bot.uploadPhoto(photo_path, caption=caption)
-        if bot.LastResponse.status_code != 200:
-            print(bot.LastResponse)
-    except Exception as e:
-        print(str(e))
+            photo_path = 'photos/' + random_filename
+            tags = generate_tags()
+
+            print("upload: " + tags)
+            bot.uploadPhoto(photo_path, caption=tags)
+            if bot.LastResponse.status_code != 200:
+                print bot.LastResponse
+        except Exception as e:
+            print str(e)
+        print("Removing file ... " + photo_path)
+        os.remove(photo_path)
 
 
 def job8():
@@ -200,31 +226,35 @@ def job8():
 # end of job8
 
 
-"""
+''' """
     Workflow:
         Download media photos with hashtag.
 """
 def download_medias():
-    try:
-        bot.logger.info('--------------------------------')
-        bot.logger.info('Trying to download medias by tag')
-        bot.logger.info('--------------------------------')
+    if not os.listdir('photos'):
+        try:
+            bot.logger.info('--------------------------------')
+            bot.logger.info('Trying to download medias by tag')
+            bot.logger.info('--------------------------------')
 
-        shutil.rmtree('photos')
-        for hashtag in ['portraitpage', 'top_portrait','infinite_faces',
-                        'sexywoman', 'boudoirphotography',
-                        'fashionphotography', 'boudoir']:
-            medias = bot.get_hashtag_medias(hashtag)
-            try:
-                bot.logger.info(" --- Downloading medias --- ")
-                bot.download_photos(medias)
-            except:
-                bot.logger.error(" --> Something gone wrg :( <-- ")
-                pass
-    except Exception as e:
-        print 'Whoops something gone wrg ....'
-        print(str(e))
-
+            shutil.rmtree('photos')
+            for hashtag in ['portraitpage', 'top_portrait','infinite_faces',
+                            'sexywoman', 'boudoirphotography',
+                            'fashionphotography', 'boudoir']:
+                medias = bot.get_hashtag_medias(hashtag)
+                try:
+                    bot.logger.info(" --- Downloading medias --- ")
+                    bot.download_photos(medias)
+                except:
+                    bot.logger.error(" --> Something gone wrg :( <-- ")
+                    pass
+        except Exception as e:
+            print 'Whoops something gone wrg ....'
+            print(str(e))
+    else:
+        bot.logger.info('-------------------------------- ')
+        bot.logger.info('DONT NEED TO DOWNLOAD IMAGES YET ')
+        bot.logger.info('-------------------------------- ') '''
 
 # function to make threads -> details here http://bit.ly/faq_schedule
 def run_threaded(job_fn):
@@ -239,9 +269,9 @@ schedule.every(8).hours.do(run_threaded, job3)              # comment timeline m
 schedule.every(3).hours.do(run_threaded, job4)              # Like users medias
 schedule.every(6).hours.do(run_threaded, job5)              # Going to follow followers
 schedule.every(6).hours.do(run_threaded, job6)              # Follow users
-schedule.every(120).hours.do(run_threaded, job7)            # Upload pic
+schedule.every(24).hours.do(run_threaded, job7)             # Upload pic
 schedule.every(72).hours.do(run_threaded, job8)             # Unfollow non followers
-schedule.every(30).days.do(run_threaded, download_medias)   # Renew images
+# schedule.every(24).hours.do(run_threaded, download_medias)  # Renew images
 
 while True:
     schedule.run_pending()
