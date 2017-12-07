@@ -106,3 +106,4 @@ bot_cp_*
 # Settings files
 examples/*.txt
 *.checkpoint
+.vscode/*
