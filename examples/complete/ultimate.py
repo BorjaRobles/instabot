@@ -48,6 +48,7 @@ setting_17 = int(lines[17].strip())
 setting_18 = lines[18].strip()
 
 bot = Bot(
+    filter_users=False,
     max_likes_per_day=setting_0,
     max_unlikes_per_day=setting_1,
     max_follows_per_day=setting_2,
@@ -84,23 +85,9 @@ bot = Bot(
 
 
 
-def set_account_as_running():
-    cursor = hive.connect('sandbox.hortonworks.com').cursor()
-    query = "UPDATE user_data SET running = true WHERE username = '%s'" % (args.u)
-    cursor.execute(query)
-
-def get_comments():
-    cursor = hive.connect('sandbox.hortonworks.com').cursor()
-    query = "SELECT comment FROM comments WHERE comment_type = '%s'" % ('generico')
-    cursor.execute(query)
-    return cursor.fetchall()
-
-bot.login(username=args.u, password=args.p, proxy=args.proxy, filter_users=False)
+bot.login(username=args.u, password=args.p, proxy=args.proxy)
 
 print "ULTIMATE SCRAPING BOT FOR %s" % (args.u)
-set_account_as_running()
-
-
 
 comments_file_name = "comments.txt"
 
@@ -121,36 +108,22 @@ def generate_tags():
     return " ".join(str(x) for x in cut)
 
 
-def get_account_type():
-    cursor = hive.connect('sandbox.hortonworks.com').cursor()
-    query = "SELECT account_type FROM user_data WHERE username = '%s'" % (args.u)
-    cursor.execute(query)
-    return cursor.fetchone()
-
-
 def like_user_list():
     try:
-        cursor = hive.connect('sandbox.hortonworks.com').cursor()
-        query = "SELECT username FROM users_to_like"
-        cursor.execute(query)
-        users_to_like = cursor.fetchall()
+        like_users_list = bot.read_list_from_file("like_users.txt")
+        print("Going to like users:", like_users_list)
 
-        print("Going to like users:", users_to_like)
-
-        for user in users_to_like:
-            bot.like_user(str(user[0]))
+        for item in like_users_list:
+            bot.like_user(item)
     except Exception as e:
         print(str(e))
 
 
 def follow_users_by_hashtag():
-    cursor = hive.connect('sandbox.hortonworks.com').cursor()
-    query = "SELECT tagname FROM tags WHERE tagtype = '%s'" % ('follow')
-    cursor.execute(query)
-    tags_list = cursor.fetchall()
+    hashtag_list = bot.read_list_from_file("follow_hashtags.txt")
 
-    for tag in tags_list:
-        users = bot.get_hashtag_users(str(tag[0]))
+    for hashtag in hashtag_list:
+        users = bot.get_hashtag_users(hashtag)
         bot.follow_users(users)
 
 
@@ -176,14 +149,8 @@ def upload_media():
             bot.logger.info('--------------------------------')
 
             shutil.rmtree('photos')
-
-            cursor = hive.connect('sandbox.hortonworks.com').cursor()
-            query = "SELECT tagname FROM tags WHERE tagtype = '%s'" % (str(get_account_type()))
-            cursor.execute(query)
-            tags_list = cursor.fetchall()
-
-            for hashstag in tags_list:
-                medias = bot.get_hashtag_medias(str(hashstag[0]))
+            for hashtag in ['portraitpage', 'top_portrait','infinite_faces','fashionphotography']:
+                medias = bot.get_hashtag_medias(hashtag)
                 try:
                     bot.logger.info(" --- Downloading medias --- ")
                     bot.download_photos(medias)

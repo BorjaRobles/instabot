@@ -27,4 +27,4 @@ while True:
         time.sleep(60)
 
 
-    time.sleep(1440)
+    time.sleep(86400)
