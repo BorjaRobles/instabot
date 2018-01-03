@@ -7,10 +7,16 @@ from bs4 import BeautifulSoup
 import threading
 import schedule
 from pyhive import hive
-
+from TCLIService.ttypes import TOperationState
+import MySQLdb
 
 sys.path.append(os.path.join(sys.path[0], '../../'))
 from instabot import Bot
+
+
+
+hive_cursor = hive.connect('localhost').cursor()
+mysql_connection = MySQLdb.connect(db="INSTABOT")
 
 
 def get_random(from_list):
@@ -83,8 +89,6 @@ bot = Bot(
         'jasa',
         'open'])
 
-
-
 bot.login(username=args.u, password=args.p, proxy=args.proxy)
 
 print "ULTIMATE SCRAPING BOT FOR %s" % (args.u)
@@ -110,27 +114,37 @@ def generate_tags():
 
 def like_user_list():
     try:
-        like_users_list = bot.read_list_from_file("like_users.txt")
+        cursor.execute("SELECT USERNAME FROM users_to_like WHERE active='TRUE'")
+        like_users_list = cursor.fetchall()
+
         print("Going to like users:", like_users_list)
 
-        for item in like_users_list:
-            bot.like_user(item)
+        for like_user in like_users_list:
+            bot.like_user(str(like_user[0]))
+
     except Exception as e:
         print(str(e))
 
 
 def follow_users_by_hashtag():
-    hashtag_list = bot.read_list_from_file("follow_hashtags.txt")
+    hive_cursor.execute("SELECT tagname FROM tags WHERE tagtype='follow'")
+    hashtag_list = cursor.fetchall()
 
     for hashtag in hashtag_list:
-        users = bot.get_hashtag_users(hashtag)
+        users = bot.get_hashtag_users(str(hashtag[0]))
         bot.follow_users(users)
-
-
 
 def stats():
     bot.save_user_stats(username=bot.user_id, path=args.u)
-    # Logic for add the info to hadoop
+    mysql_cur=mysql_connection.cursor()
+    query = "UPDATE INSTABOT.ACCOUNTS_HIVE SET RUNNING = 'TRUE' WHERE USERNAME = '%s'" % (str(args.u))
+    
+
+def check_account_status():
+    mysql_cur=mysql_connection.cursor()
+    query = "SELECT RUNNING FROM INSTABOT.ACCOUNTS_HIVE WHERE USERNAME = '%s'" % (str(args.u))
+    result = cursor.fetchone()
+    bot.logout() if result == 'FALSE'
 
 
 def comment_medias():
@@ -148,9 +162,20 @@ def upload_media():
             bot.logger.info('Trying to download medias by tag')
             bot.logger.info('--------------------------------')
 
+            query_account_type = "SELECT account_type FROM users_to_like WHERE username='%s'" % (args.u)
+            hive_cursor = hive.connect('localhost').cursor()
+            hive_cursor.execute(query_account_type)
+            account_type = hive_cursor.fetchone()
+
+            hive_cursor = hive.connect('localhost').cursor()
+            query_download_tags = "SELECT tagname FROM tags WHERE tagtype='%s'" % (str(account_type[0]))
+            hive_cursor.execute(query_download_tags)
+            hashtag_list = hive_cursor.fetchall()
+
+
             shutil.rmtree('photos')
-            for hashtag in ['portraitpage', 'top_portrait','infinite_faces','fashionphotography']:
-                medias = bot.get_hashtag_medias(hashtag)
+            for hashtag in hashtag_list:
+                medias = bot.get_hashtag_medias(str(hashtag[0]))
                 try:
                     bot.logger.info(" --- Downloading medias --- ")
                     bot.download_photos(medias)
@@ -198,6 +223,7 @@ schedule.every(3).hours.do(run_threaded, like_user_list)              # Like use
 schedule.every(6).hours.do(run_threaded, follow_users_by_hashtag)              # like hashtag
 schedule.every(8).hours.do(run_threaded, comment_medias)              # comment timeline medias
 schedule.every(24).hours.do(run_threaded, upload_media)             # Upload pic
+schedule.every(24).hours.do(run_threaded, check_account_status)             # Logout bot if is false
 schedule.every(72).hours.do(run_threaded, unfollow)                            # Unfollow non followers
 
 while True:

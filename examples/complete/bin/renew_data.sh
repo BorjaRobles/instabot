@@ -31,7 +31,7 @@ hadoop fs -put comments.csv /instabot/comments
 # Create the tables
 hive -e "CREATE EXTERNAL TABLE IF NOT EXISTS user_data(username STRING, password STRING, proxy STRING, account_type STRING, running STRING) COMMENT 'Users temporal data' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/users'"
 hive -e "CREATE EXTERNAL TABLE IF NOT EXISTS comments(comment STRING, comment_type STRING) COMMENT 'Comments' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/comments'"
-hive -e "CREATE EXTERNAL TABLE IF NOT EXISTS users_to_like(username STRING) COMMENT 'Users to like' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/users_to_like'"
+hive -e "CREATE EXTERNAL TABLE IF NOT EXISTS users_to_like(username STRING, active STRING) COMMENT 'Users to like' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/users_to_like'"
 hive -e "CREATE EXTERNAL TABLE IF NOT EXISTS tags(tagname STRING, tagtype STRING) COMMENT 'List of tags' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/tags'"
 
 
