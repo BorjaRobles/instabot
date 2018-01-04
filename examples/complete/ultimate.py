@@ -182,10 +182,11 @@ def upload_media():
                 try:
                     bot.logger.info(" --- Downloading medias --- ")
                     path = "photos/%s/" % str(account_type[0])
-		    if not os.path.exists(path):
-    			os.makedirs(path)
-                    
-		    bot.download_photos(medias=medias, path=path)
+
+                    if not os.path.exists(path):
+                      os.makedirs(path)
+
+                    bot.download_photos(medias=medias, path=path)
                 except:
                     bot.logger.error(" --> Something gone wrg :( <-- ")
                     pass
@@ -194,8 +195,7 @@ def upload_media():
             print(str(e))
     else:
         try:
-
-	    query_account_type = "SELECT account_type FROM user_data WHERE username='%s'" % (args.u)
+            query_account_type = "SELECT account_type FROM user_data WHERE username='%s'" % (args.u)
             hive_cursor = hive.connect('localhost').cursor()
             hive_cursor.execute(query_account_type)
             account_type = hive_cursor.fetchone()
