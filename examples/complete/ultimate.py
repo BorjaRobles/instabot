@@ -136,6 +136,7 @@ def follow_users_by_hashtag():
 
 def stats():
     bot.save_user_stats(username=bot.user_id, path=args.u)
+    os.system('./bin/upload_log.sh %s' % args.u)
     mysql_cur=mysql_connection.cursor()
     query = "UPDATE INSTABOT.ACCOUNTS_HIVE SET RUNNING = 'TRUE' WHERE USERNAME = '%s'" % (str(args.u))
     mysql_cur.execute(query)
