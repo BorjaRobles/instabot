@@ -13,8 +13,6 @@ import MySQLdb
 sys.path.append(os.path.join(sys.path[0], '../../'))
 from instabot import Bot
 
-
-
 hive_cursor = hive.connect('localhost').cursor()
 mysql_connection = MySQLdb.connect(db="INSTABOT")
 
@@ -29,6 +27,7 @@ parser = argparse.ArgumentParser(add_help=True)
 parser.add_argument('-u', type=str, help="username")
 parser.add_argument('-p', type=str, help="password")
 parser.add_argument('-proxy', type=str, help="proxy")
+parser.add_argument('-version', type=str, help="version")
 args = parser.parse_args()
 
 f = open("setting.txt")
@@ -74,7 +73,6 @@ bot = Bot(
     unfollow_delay=setting_16,
     comment_delay=setting_17,
     whitelist="whitelist.txt",
-    comments_file="comments.txt",
     stop_words=[
         'order',
         'shop',
@@ -92,9 +90,6 @@ bot = Bot(
 bot.login(username=args.u, password=args.p, proxy=args.proxy)
 
 print "ULTIMATE SCRAPING BOT FOR %s" % (args.u)
-
-comments_file_name = "comments.txt"
-
 
 def generate_tags():
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
@@ -135,13 +130,13 @@ def follow_users_by_hashtag():
         bot.follow_users(users)
 
 def stats():
-    bot.save_user_stats(username=bot.user_id, path=args.u)
-    os.system('./bin/upload_log.sh %s' % args.u)
-    mysql_cur=mysql_connection.cursor()
-    query = "UPDATE INSTABOT.ACCOUNTS_HIVE SET RUNNING = 'TRUE' WHERE USERNAME = '%s'" % (str(args.u))
-    mysql_cur.execute(query)
-    mysql_connection.commit()
+    path = "user_logs/%s" % str(args.u)
     
+    if not os.path.exists(path):
+      os.makedirs(path)
+    
+    bot.save_user_stats(username=args.u, path=path)
+    os.system('./bin/upload_log.sh %s' % args.u)
 
 def check_account_status():
     mysql_cur=mysql_connection.cursor()
@@ -151,6 +146,14 @@ def check_account_status():
     if str(result[0]) == 'FALSE':
     	bot.logout()
 
+def check_correct_version():
+    bot_version_q = "SELECT bot_version FROM config"
+    hive_cursor = hive.connect('localhost').cursor()
+    hive_cursor.execute(bot_version_q)
+    bot_v = hive_cursor.fetchone()
+    if str(bot_v[0]) != str(args.version):
+      print 'NOT SAME VERSION UPDATING !!'
+      bot.logout()
 
 def comment_medias():
     try:
@@ -161,7 +164,16 @@ def comment_medias():
 
 
 def upload_media():
-    if not os.listdir('photos'):
+    query_account_type = "SELECT account_type FROM user_data WHERE username='%s'" % (args.u)
+    hive_cursor = hive.connect('localhost').cursor()
+    hive_cursor.execute(query_account_type)
+    account_type = hive_cursor.fetchone()
+    path = "photos/%s/" % str(account_type[0])
+
+    if not os.path.exists(path):
+      os.system('mkdir %s' % path)
+    
+    if not os.listdir(path):
         try:
             bot.logger.info('--------------------------------')
             bot.logger.info('Trying to download medias by tag')
@@ -174,10 +186,12 @@ def upload_media():
 
             hive_cursor = hive.connect('localhost').cursor()
             query_download_tags = "SELECT tagname FROM tags WHERE tagtype='%s'" % (str(account_type[0]))
+            #query_download_tags = "SELECT tagname FROM tags"
             hive_cursor.execute(query_download_tags)
             hashtag_list = hive_cursor.fetchall()
 
             shutil.rmtree('photos')
+            os.makedirs('photos')
             for hashtag in hashtag_list:
                 medias = bot.get_hashtag_medias(str(hashtag[0]))
                 try:
@@ -232,15 +246,16 @@ def run_threaded(job_fn):
     job_thread=threading.Thread(target=job_fn)
     job_thread.start()
 
-
-
 schedule.every(1).hour.do(run_threaded, stats)                                 # get stats
+schedule.every(1).hour.do(run_threaded, check_correct_version)        #confirm new version
 schedule.every(3).hours.do(run_threaded, like_user_list)              # Like users medias
 schedule.every(6).hours.do(run_threaded, follow_users_by_hashtag)              # like hashtag
 schedule.every(8).hours.do(run_threaded, comment_medias)              # comment timeline medias
 schedule.every(24).hours.do(run_threaded, upload_media)             # Upload pic
 schedule.every(2).hours.do(run_threaded, check_account_status)             # Logout bot if is false
 schedule.every(72).hours.do(run_threaded, unfollow)                            # Unfollow non followers
+
+
 
 while True:
     schedule.run_pending()
