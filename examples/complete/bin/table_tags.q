@@ -1,9 +1,0 @@
-drop table tags;
-
-CREATE EXTERNAL TABLE IF NOT EXISTS tags (
-	tagname STRING,
-	tagtype STRING
-)
-COMMENT 'List of tags' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '/instabot/tags';
-
-MSCK REPAIR TABLE tags;
