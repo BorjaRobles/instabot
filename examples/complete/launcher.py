@@ -1,55 +1,43 @@
-from pyhive import hive
-from multiprocessing import Process
-import os, shutil
+import os, shutil, glob, requests
+import sys, argparse, random, time
+import yaml, glob
+from tqdm import tqdm
+from random import shuffle
+from bs4 import BeautifulSoup
 import threading
 import schedule
-import time
+from pyhive import hive
 from TCLIService.ttypes import TOperationState
 import MySQLdb
 
-def launch_user(user):
-  os.system('python ultimate.py -u ' + str(user[0]) + ' -p ' + str( user[1]) + ' -proxy masush:masush@' + str(user[2]))
+def launch_bots():
+    os.system('python ~/instabot/examples/complete/bin/bot_launcher.py')
 
 
 def renew_data():
-    shutil.rmtree('bin/tmp', ignore_errors=True)
-    #os.system('./bin/renew_data.sh')
-    
-    os.system('hadoop fs -rm -r /instabot/users')
-    os.system('hadoop fs -rm -r /instabot/tags')
-    os.system('hadoop fs -rm -r /instabot/users_to_like')
-    os.system('hadoop fs -rm -r /instabot/comments')
-    os.system('hadoop fs -mkdir -p /instabot/users')
-    os.system('hadoop fs -mkdir -p /instabot/tags')
-    os.system('hadoop fs -mkdir -p /instabot/users_to_like')
-    os.system('hadoop fs -mkdir -p /instabot/comments')
-    os.system('cd tmp')
-    os.system('wget -O users.csv "https://docs.google.com/spreadsheets/d/1SSoHDNQhXH84ewAF0FrwW6Q8I_BSFVij0qQxAkLMagQ/export?gid=0&format=csv"')
-    os.system('wget -O tags.csv "https://docs.google.com/spreadsheets/d/1G1sKyz7pazCesqej8xsxLfVgi8G5qm7QWTRBgyiu2zE/export?gid=0&format=csv"')
-    os.system('wget -O users_to_like.csv "https://docs.google.com/spreadsheets/d/1aIZPJXYNI9SKhDexQNAM7Hg7XtfNSS8Hx7nDsyZEm5E/export?gid=0&format=csv"')
-    os.system('wget -O comments.csv "https://docs.google.com/spreadsheets/d/1HRQQ0Wxf7OhXkzrkm5LwfdtcuV5IURlO0hx7GOTCKwQ/export?gid=0&format=csv"')
+    for file in os.listdir("~/instabot/examples/complete/bin/renew"):
+        if file.endswith(".sh"):
+            os.system('%s') % os.path.join('~/instabot/examples/complete/bin/renew/', file)
+        elif file.endswith(".py"):
+            os.system('python %s') % os.path.join('~/instabot/examples/complete/bin/renew/', file)
 
-# Upload data to the cluster
-    os.system('hadoop fs -put users.csv /instabot/users')
-    os.system('hadoop fs -put tags.csv /instabot/tags')
-    os.system('hadoop fs -put users_to_like.csv /instabot/users_to_like')
-    os.system('hadoop fs -put comments.csv /instabot/comments')
 
-    os.system('python bin/from_hive_to_mysql.py')
+def data_processing():
+    for file in os.listdir("~/instabot/examples/complete/bin/data_processing"):
+        if file.endswith(".sh"):
+            os.system('%s') % os.path.join('~/instabot/examples/complete/bin/data_processing/', file)
+        elif file.endswith(".py"):
+            os.system('python %s') % os.path.join('~/instabot/examples/complete/bin/data_processing/', file)
+
+def run_threaded(job_fn):
+    job_thread=threading.Thread(target=job_fn)
+    job_thread.start()
+
+schedule.every(1).hour.do(run_threaded, launch_bots)
+schedule.every(2).hours.do(run_threaded, renew_data)
+schedule.every(24).hours.do(run_threaded, data_processing)
+
 
 while True:
-    renew_data()
-    
-    mysql_connection = MySQLdb.connect(db="INSTABOT")
-    mysql_cur=mysql_connection.cursor()
-    query = "select USERNAME, PASSWORD, PROXY from INSTABOT.ACCOUNTS_HIVE where running = 'FALSE'"
-    mysql_cur.execute(query)
-    info = mysql_cur.fetchall()
-    
-    for user in info:
-        p = Process(target=launch_user, args=(user,))
-        p.start()
-        time.sleep(60)
-
-
-    time.sleep(900)
+    schedule.run_pending()
+    time.sleep(1)

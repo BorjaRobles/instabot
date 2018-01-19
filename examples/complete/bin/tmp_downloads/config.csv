@@ -1,0 +1,2 @@
+bot_version,filter_users,max_likes_per_day,max_unlikes_per_day,max_follows_per_day,max_unfollows_per_day,max_comments_per_day,max_likes_to_like,max_followers_to_follow,min_followers_to_follow,max_following_to_follow,min_following_to_follow,max_followers_to_following_ratio,max_following_to_followers_ratio,min_media_count_to_follow,like_delay,unlike_delay,follow_delay,unfollow_delay,comment_delay
+2,FALSE,1000,1000,350,450,5,10000,100000,10,100000,10,20,2,3,60,60,30,30,60
